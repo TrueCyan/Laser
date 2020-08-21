@@ -72,7 +72,7 @@ public class LevelEditor : EditorWindow
 	//holds if shift was pressed and since then there wasn't a mouse up event
 	public bool ShiftPressed;
 
-	//last tool (move/rotate/scale/rect) used before using mapTool
+	//last tool (Move/rotate/scale/rect) used before using mapTool
 	public Tool LastTool;
 
 	//hold if mouse is currently down
