@@ -45,7 +45,7 @@ public class PlayerMove : MonoBehaviour
 
         // 유효한 방향인지 검사
         if (!(Mathf.Abs(dir.magnitude - 1) < 0.001f 
-              && (Math.Abs(Mathf.Abs(dir.x) - 1) < 0.001f || Math.Abs(Mathf.Abs(dir.y) - 1) < 0.001f))) return;
+              && (Mathf.Abs(Mathf.Abs(dir.x) - 1) < 0.001f || Mathf.Abs(Mathf.Abs(dir.y) - 1) < 0.001f))) return;
 
         // 이동이 가능한지 검사
         Vector3 position = transform.position;
