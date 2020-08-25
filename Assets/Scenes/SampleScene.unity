@@ -1817,23 +1817,7 @@ MonoBehaviour:
   m_ControlsChangedEvent:
     m_PersistentCalls:
       m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 426c4441-a915-4e27-ab0f-4a69ca9f4b87
-    m_ActionName: PlayerControl/Front[/Keyboard/w,/Keyboard/upArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 758401e0-4b46-4fbd-b433-75fd49995b9b
-    m_ActionName: PlayerControl/Back[/Keyboard/s,/Keyboard/downArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 8ba6c74c-cb41-4ab8-a196-a4d65b5c6b1f
-    m_ActionName: PlayerControl/Left[/Keyboard/a,/Keyboard/leftArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 9e4babcf-76a8-4478-ae8f-b8213604fad1
-    m_ActionName: PlayerControl/Right[/Keyboard/d,/Keyboard/rightArrow]
+  m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: PlayerControl

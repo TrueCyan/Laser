@@ -5,7 +5,7 @@ using UnityEngine;
 public class BlockMove : MonoBehaviour
 {
     public bool movable = true;
-    private bool _moving = false; //실제 이동 중 + 이동 사이에 정지해 있는 시간 동안 True 
+    private bool _moving = false; //실제 이동 중 True 
     private bool _onDelay = false; //이동 사이에 정지해 있는 시간 동안 True
     private Vector3 _velocity = Vector3.zero;
     private float _movingTime = 0.1f; // 다음 칸으로 이동하는데 걸리는 시간 (프레임 변화에 대해 일정하도록 초 단위로 정의)
@@ -15,7 +15,7 @@ public class BlockMove : MonoBehaviour
     public delegate void MoveFinished();
     public event MoveFinished MoveFinishedEvent;
 
-    public bool IsMoving() { return _moving; }
+    public bool IsMoving() { return _moving || _onDelay; }
 
 
     // Update is called once per frame
@@ -31,6 +31,7 @@ public class BlockMove : MonoBehaviour
         // 이동을 끝냈을 때
         if (_movingElapsed >= _movingTime)
         {
+            _moving = false;
             _onDelay = true;
             _movingElapsed = 0;
             _velocity = Vector3.zero;
@@ -51,7 +52,7 @@ public class BlockMove : MonoBehaviour
     {
         yield return new WaitForSeconds(_movingDelay); // 정해진 시간이 지난 후 아래 코드 실행
         _onDelay = false;
-        _moving = false;
+        //_moving = false;
         MoveFinishedEvent?.Invoke();
     }
 
