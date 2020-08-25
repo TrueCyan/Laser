@@ -9,7 +9,7 @@ public class PlayerMove : MonoBehaviour
 {
     private BlockMove _blockMove;
     private Vector2 _moveStack;
-    public GameObject target;
+    private GameObject target;
 
     // Start is called before the first frame update
     void Start()
@@ -35,7 +35,7 @@ public class PlayerMove : MonoBehaviour
 
     void Move(Vector2 dir)
     {
-        // 이미 이동중일경우 
+        // 이미 이동 중인 경우 
         if (_blockMove.IsMoving())
         {
             _moveStack = dir;
@@ -44,10 +44,28 @@ public class PlayerMove : MonoBehaviour
 
         // 유효한 방향인지 검사
         if (!(Mathf.Abs(dir.magnitude - 1) < 0.001f 
-              && (Math.Abs(Mathf.Abs(dir.x) - 1) < 0.001f || Math.Abs(Mathf.Abs(dir.y) - 1) < 0.001f))) return;
+              && (Mathf.Abs(Mathf.Abs(dir.x) - 1) < 0.001f || Mathf.Abs(Mathf.Abs(dir.y) - 1) < 0.001f))) return;
+
+        // 문이 있는지 검사
+        Vector3 position = transform.position;
+        position += Vector3.ClampMagnitude((Vector3)dir, 0.45f);
+        target = BlockCheck(position);
+        if (target != null)
+        {
+            Door _door = target.GetComponent<Door>();
+            
+            if (_door != null)
+            {
+                // 문이 닫혀 있으면 이동하지 않음
+                if (!_door.IsOpened()) return;
+
+                // 문이 열려 있으면 블록이 막고 있더라도 이동
+                if (_door.IsOpened()) { _blockMove.Move(dir); return; }
+            }
+        }
 
         // 이동이 가능한지 검사
-        Vector3 position = transform.position;
+        position = transform.position;
         while (true)
         {
             // 한 칸 이동
@@ -85,9 +103,7 @@ public class PlayerMove : MonoBehaviour
     GameObject BlockCheck(Vector3 position)
     {
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero);
-
         if (hit.collider != null) return hit.collider.gameObject;
-        
         return null;
     }
 }
