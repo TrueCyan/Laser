@@ -112,5 +112,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1c316b32e2798145ba63e8000b2a2c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  evenColor: {r: 0.7490196, g: 0.7490196, b: 0.7490196, a: 1}
-  oddColor: {r: 0.6320754, g: 0.6320754, b: 0.6320754, a: 1}
+  evenColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
+  oddColor: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 1}
