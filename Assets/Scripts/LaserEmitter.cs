@@ -65,7 +65,12 @@ public class LaserEmitter : MonoBehaviour
         Physics2D.queriesStartInColliders = true;
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero);
         Physics2D.queriesStartInColliders = false;
-        if (hit.collider != null) return hit.collider.gameObject;
+        
+        if (hit.collider != null)
+        {
+            if (hit.collider.CompareTag("Player")) return null;
+            return hit.collider.gameObject;
+        }
         return null;
     }
 }

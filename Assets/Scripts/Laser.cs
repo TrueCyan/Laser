@@ -85,14 +85,18 @@ public class Laser : MonoBehaviour
             _subLasers.Clear();
             if (hitObj.CompareTag("Mirror"))
             {
-                
-                var laser = CreateLaser(pos, Vector2.Reflect(direction, ray.normal), color, this);
+                var reflectiveColor = hitObj.GetComponent<BlockColor>().hasColor;
+                var laser = CreateLaser(pos, Vector2.Reflect(direction, ray.normal), reflectiveColor & color, this);
                 laser.UpdateLaser();
             }
             else if (hitObj.CompareTag("Glass"))
             {
-                var laser = CreateLaser(pos, direction, color, this);
-                laser.UpdateLaser();
+                var reflectiveColor = hitObj.GetComponent<BlockColor>().hasColor;
+                if (reflectiveColor == ~ColorCode.Black) reflectiveColor = ColorCode.Black;
+                var reflectiveLaser = CreateLaser(pos, Vector2.Reflect(direction, ray.normal), color & reflectiveColor, this);
+                var transmissiveLaser = CreateLaser(pos, direction, ~(color & reflectiveColor) & color, this);
+                reflectiveLaser.UpdateLaser();
+                transmissiveLaser.UpdateLaser();
             }
         }
         else
