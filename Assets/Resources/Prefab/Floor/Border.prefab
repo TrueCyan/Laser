@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 6128515492563065369}
   - component: {fileID: 6128515492563065366}
   - component: {fileID: -4702490173274096736}
+  - component: {fileID: -3222828349288153571}
+  - component: {fileID: -3504595934203370117}
   m_Layer: 0
   m_Name: Border
   m_TagString: Untagged
@@ -119,3 +121,42 @@ MonoBehaviour:
   flippable: 0
   showInEditor: 0
   borderPrefab: {fileID: 0}
+--- !u!61 &-3222828349288153571
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6128515492563065367}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
+--- !u!114 &-3504595934203370117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6128515492563065367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828029a93f6627a46b9a36b14edf59c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movable: 0

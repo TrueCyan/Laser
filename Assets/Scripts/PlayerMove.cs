@@ -102,7 +102,9 @@ public class PlayerMove : MonoBehaviour
 
     GameObject BlockCheck(Vector3 position)
     {
+        Physics2D.queriesStartInColliders = true;
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero);
+        Physics2D.queriesStartInColliders = false;
         if (hit.collider != null) return hit.collider.gameObject;
         return null;
     }

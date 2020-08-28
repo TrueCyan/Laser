@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Wall
+  - Mirror
+  - Glass
+  - Wood
   layers:
   - Default
   - TransparentFX
@@ -40,6 +44,18 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Floor
+    uniqueID: 4061453157
+    locked: 0
+  - name: Laser
+    uniqueID: 4244744983
+    locked: 0
+  - name: Object
+    uniqueID: 3078243847
+    locked: 0
+  - name: Player
+    uniqueID: 799376451
     locked: 0
   - name: Cursor
     uniqueID: 2381286699
