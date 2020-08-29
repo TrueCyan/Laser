@@ -52,7 +52,7 @@ public class Laser : MonoBehaviour
             transform.position = dependentLaser.end;
         }
         var pos = transform.position;
-        var ray = Physics2D.Raycast(pos, direction);
+        var ray = Physics2D.Raycast(pos, direction, Mathf.Infinity, LayerMask.GetMask("Object"));
         if (ray.transform == null)
         {
             Debug.Log(pos+" / "+direction);
