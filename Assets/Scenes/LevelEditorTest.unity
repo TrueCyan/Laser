@@ -8545,7 +8545,7 @@ GameObject:
   - component: {fileID: 1106275892}
   - component: {fileID: 1106275891}
   - component: {fileID: 1106275894}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Block (2)
   m_TagString: Glass
   m_Icon: {fileID: 0}
@@ -11034,7 +11034,7 @@ GameObject:
   - component: {fileID: 1490558707}
   - component: {fileID: 1490558706}
   - component: {fileID: 1490558705}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Block (3)
   m_TagString: Wall
   m_Icon: {fileID: 0}
