@@ -13,11 +13,17 @@ public class BlockMove : MonoBehaviour
     private float _movingDelay = 0.05f; // 이동 사이에 정지해있는 시간
     private float _movingElapsed = 0; // 지금까지 움직인 시간
 
+    private PlayerMove _playerMove;
+
     public delegate void MoveFinished();
     public event MoveFinished MoveFinishedEvent;
 
     public bool IsMoving() { return _moving || _onDelay; }
 
+    void Start()
+    {
+        _playerMove = GetComponent<PlayerMove>();
+    }
 
     // Update is called once per frame
     void Update()
