@@ -15,12 +15,6 @@ public class DestroyCount : MonoBehaviour
         GameManager.Instance.player.TurnEndEvent += TurnCount;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void TurnCount()
     {
         destroyTurn--;

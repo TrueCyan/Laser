@@ -18,12 +18,6 @@ public class PlayerManager : MonoBehaviour
         _blockMove.MoveFinishedEvent += OnTurnEnd; // 이동 종료 이벤트에 TurnCount 함수 연결
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void OnTurnEnd()
     {
         TurnEndEvent?.Invoke();
