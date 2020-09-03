@@ -12,23 +12,21 @@ public class DestroyCount : MonoBehaviour
     void Start()
     {
         // 플레이어 찾아서 연결하기
-        GameObject _player = GameObject.FindGameObjectWithTag("Player");
-        TurnManager _turnManager = _player.GetComponent<TurnManager>();
-        DestroyCount _destroyCount = GetComponent<DestroyCount>();
-        _turnManager.woods.Add(_destroyCount);
+        GameManager.Instance.player.TurnEndEvent += TurnCount;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (destroyTurn == 0)
-        {
-            Destroy(gameObject);
-        }
+        
     }
 
     public void TurnCount()
     {
         destroyTurn--;
+        if (destroyTurn == 0)
+        {
+            Destroy(gameObject);
+        }
     }
 }

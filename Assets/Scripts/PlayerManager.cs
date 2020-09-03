@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class TurnManager : MonoBehaviour
+public class PlayerManager : MonoBehaviour
 {
-    public List<DestroyCount> woods = new List<DestroyCount>();
     private BlockMove _blockMove;
+
+    public delegate void TurnEnd();
+    public event TurnEnd TurnEndEvent;
 
     // Start is called before the first frame update
     void Start()
     {
+        GameManager.Instance.player = this;
         _blockMove = GetComponent<BlockMove>();
-        _blockMove.MoveFinishedEvent += TurnCount; // 이동 종료 이벤트에 TurnCount 함수 연결
+        _blockMove.MoveFinishedEvent += OnTurnEnd; // 이동 종료 이벤트에 TurnCount 함수 연결
     }
 
     // Update is called once per frame
@@ -21,11 +24,8 @@ public class TurnManager : MonoBehaviour
         
     }
 
-    public void TurnCount()
+    public void OnTurnEnd()
     {
-        foreach(DestroyCount wood in woods)
-        {
-            if(wood) wood.TurnCount();
-        }
+        TurnEndEvent?.Invoke();
     }
 }
