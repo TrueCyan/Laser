@@ -14,6 +14,7 @@ public class PrefabOption : MonoBehaviour
     public bool flippable;
     public bool showInEditor = true;
     public GameObject borderPrefab;
+    public bool onlyOnFloor;
 
 
     // Update is called once per frame

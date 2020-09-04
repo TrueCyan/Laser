@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditorInternal;
@@ -98,6 +99,7 @@ public class LevelEditor : EditorWindow
 
     //holds all the existing layers
 	public List<Layer> LayerList = new List<Layer>();
+    public Layer FloorLayer;
 
 	//used to make the whole tool work in some magic way
 	public int ControlID;
@@ -116,7 +118,6 @@ public class LevelEditor : EditorWindow
 
 	//reorderable list that can be seen on the editor window
 	public ReorderableList LayerReorder;
-
 
     public bool RedOn = true;
     public bool GreenOn = true;
@@ -751,13 +752,19 @@ public class LevelEditor : EditorWindow
 		downRight.y = EndPos.y > BeginPos.y ? BeginPos.y : EndPos.y;
 		downRight.x = EndPos.x < BeginPos.x ? EndPos.x : BeginPos.x;
 
+        bool OnEdge(float x, float y)
+        {
+            return Math.Abs(x - downRight.x) < 0.001f 
+                   || Math.Abs(x - topLeft.x) < 0.001f
+                   || Math.Abs(y - downRight.y) < 0.001f 
+                   || Math.Abs(y - topLeft.y) < 0.001f;
+        }
+
 		//goes through every unit on that area and creates objects
 		for (float y = downRight.y; y <= topLeft.y; y++)
 		{
 			for (float x = downRight.x; x <= topLeft.x; x++)
             {
-                AddTile(new Vector2(x, y), _currentLayer);
-				/*
                 GameObject go = IsObjectAt(new Vector3(x, y, 0), _currentLayer);
 
 				//If there no object than create it
@@ -767,7 +774,7 @@ public class LevelEditor : EditorWindow
                     if (obj)
                     {
                         var option = obj.GetComponent<PrefabOption>();
-                        if (option)
+                        if (option && OnEdge(x,y))
                         {
                             InstantiateBorder(option.borderPrefab, new Vector3(x, y, 0), _currentLayer);
                         }
@@ -781,13 +788,13 @@ public class LevelEditor : EditorWindow
 
                     var obj = InstantiateTile(new Vector3(x, y, 0), _currentLayer);
                     var option = obj.GetComponent<PrefabOption>();
-                    if (option)
+                    if (option && OnEdge(x, y))
                     {
                         InstantiateBorder(option.borderPrefab, new Vector3(x, y, 0), _currentLayer);
                     }
 
 				}
-				*/
+				
 			}
 		}
 	}
