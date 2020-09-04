@@ -121,6 +121,7 @@ MonoBehaviour:
   flippable: 0
   showInEditor: 0
   borderPrefab: {fileID: 0}
+  onlyOnFloor: 1
 --- !u!61 &-3222828349288153571
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -160,3 +161,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movable: 0
+  laserInfo:
+    up: 0
+    down: 0
+    left: 0
+    right: 0

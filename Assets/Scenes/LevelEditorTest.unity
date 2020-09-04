@@ -15238,11 +15238,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1934629493}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50776d7ca0d211c439ea56355448377d, type: 3}
+  m_Script: {fileID: 11500000, guid: 0fc57a685b2cd464ab00fee40d5d4fc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 5
-  priority: 1
 --- !u!4 &1934629495
 Transform:
   m_ObjectHideFlags: 0
@@ -15582,7 +15580,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 5
-  priority: 2
+  priority: 1
 --- !u!4 &1958731607
 Transform:
   m_ObjectHideFlags: 0

@@ -35,6 +35,7 @@ public class LevelEditor : EditorWindow
 	public bool Flipping;
 	public static bool FlippingState;
 
+    public bool selOnlyFloor;
 
 	//controls when there will be an area deletion
 	public bool AreaDel;
@@ -99,7 +100,7 @@ public class LevelEditor : EditorWindow
 
     //holds all the existing layers
 	public List<Layer> LayerList = new List<Layer>();
-    public Layer FloorLayer;
+    public Floor FloorLayer;
 
 	//used to make the whole tool work in some magic way
 	public int ControlID;
@@ -125,6 +126,8 @@ public class LevelEditor : EditorWindow
     public static bool RedState = true;
     public static bool GreenState = true;
     public static bool BlueState = true;
+
+    
 
 	#endregion variable
 
@@ -198,6 +201,17 @@ public class LevelEditor : EditorWindow
 			_currentLayer = LayerList[0];
 		}
 
+        if (FloorLayer == null)
+        {
+            //creates floor
+            ShowLog("Floor Creation");
+            GameObject floorObj = new GameObject("Floor");
+            Undo.RegisterCreatedObjectUndo(floorObj, "Created layer");
+            floorObj.AddComponent<Floor>();
+            Floor floor = floorObj.GetComponent<Floor>();
+            FloorLayer = floor;
+        }
+
 		//makes some code run onSceneGUI
 		SceneView.duringSceneGui += SceneGUI;
 	}
@@ -259,7 +273,7 @@ public class LevelEditor : EditorWindow
     }
 	//Finds object in certain position
 	//returns null if not found
-	private GameObject IsObjectAt(Vector2 tilePos, Layer curLayer)
+	private GameObject IsObjectAt(Vector2 tilePos, Transform layerTransform)
     {
 		/*
         var qBool = Physics2D.queriesStartInColliders;
@@ -291,9 +305,9 @@ public class LevelEditor : EditorWindow
 		
 		
 		//looks for the object on the current active layer
-		for (int i = 0; i < curLayer.transform.childCount; i++)
+		for (int i = 0; i < layerTransform.childCount; i++)
 		{
-			GameObject g = curLayer.transform.GetChild(i).gameObject;
+			GameObject g = layerTransform.GetChild(i).gameObject;
 
 			ArtificialPosition artPos = g.GetComponent<ArtificialPosition>();
 
@@ -522,9 +536,11 @@ public class LevelEditor : EditorWindow
             //prevents from creating several gameobjects if snapping is off
 			if (Snapping == false)
 				MouseDown = false;
-
+            var layerTransform = _currentLayer.transform;
+            if (CheckOnlyOnFloor(CurPrefab))
+                layerTransform = FloorLayer.transform;
 			//adds a tile
-			AddTile(GizmoCursor.transform.position, _currentLayer);
+			AddTile(GizmoCursor.transform.position, layerTransform);
 		}
 		//Add Multiple tiles
 		if (MouseDown && ShiftPressed && AreaIns == false && e.control == false)
@@ -716,6 +732,13 @@ public class LevelEditor : EditorWindow
 		downRight.y = EndPos.y > BeginPos.y ? BeginPos.y : EndPos.y;
 		downRight.x = EndPos.x < BeginPos.x ? EndPos.x : BeginPos.x;
 
+
+        var layerTransform = _currentLayer.transform;
+        if (CheckOnlyOnFloor(CurPrefab))
+        {
+            layerTransform = FloorLayer.transform;
+        }
+
 		//Goes through all units and deletes the objects if there is one
 		for (var y = downRight.y; y <= topLeft.y; y++)
 		{
@@ -723,14 +746,14 @@ public class LevelEditor : EditorWindow
 			for (var x = downRight.x; x <= topLeft.x; x++)
 			{
 				var pos = new Vector2(x,y);
-				var goToDelete = IsObjectAt(pos, _currentLayer);
+                var goToDelete = IsObjectAt(pos, layerTransform);
 				//If there's something then delete it
 				if (goToDelete == null) continue;
 
                 var option = goToDelete.GetComponent<PrefabOption>();
                 if (option)
                 {
-                    FixBorder(option.borderPrefab, pos, _currentLayer);
+                    FixBorder(option.borderPrefab, pos, layerTransform);
                 }
 				Undo.DestroyObjectImmediate(goToDelete);
 				//DestroyImmediate(goToDelete);
@@ -760,23 +783,29 @@ public class LevelEditor : EditorWindow
                    || Math.Abs(y - topLeft.y) < 0.001f;
         }
 
+        var layerTransform = _currentLayer.transform;
+        if (CheckOnlyOnFloor(CurPrefab))
+        {
+            layerTransform = FloorLayer.transform;
+        }
+
 		//goes through every unit on that area and creates objects
 		for (float y = downRight.y; y <= topLeft.y; y++)
 		{
 			for (float x = downRight.x; x <= topLeft.x; x++)
             {
-                GameObject go = IsObjectAt(new Vector3(x, y, 0), _currentLayer);
+                GameObject go = IsObjectAt(new Vector3(x, y, 0), layerTransform);
 
 				//If there no object than create it
 				if (go == null)
 				{
-                    var obj = InstantiateTile(new Vector3(x, y, 0), _currentLayer);
+                    var obj = InstantiateTile(new Vector3(x, y, 0), layerTransform);
                     if (obj)
                     {
                         var option = obj.GetComponent<PrefabOption>();
                         if (option && OnEdge(x,y))
                         {
-                            InstantiateBorder(option.borderPrefab, new Vector3(x, y, 0), _currentLayer);
+                            InstantiateBorder(option.borderPrefab, new Vector3(x, y, 0), layerTransform);
                         }
 					}
 
@@ -786,11 +815,11 @@ public class LevelEditor : EditorWindow
 					Undo.DestroyObjectImmediate(go);
 					DestroyImmediate(go);
 
-                    var obj = InstantiateTile(new Vector3(x, y, 0), _currentLayer);
+                    var obj = InstantiateTile(new Vector3(x, y, 0), layerTransform);
                     var option = obj.GetComponent<PrefabOption>();
                     if (option && OnEdge(x, y))
                     {
-                        InstantiateBorder(option.borderPrefab, new Vector3(x, y, 0), _currentLayer);
+                        InstantiateBorder(option.borderPrefab, new Vector3(x, y, 0), layerTransform);
                     }
 
 				}
@@ -915,7 +944,7 @@ public class LevelEditor : EditorWindow
 		return mode * 90f;
 	}
 	//Instantiate one tile
-	private GameObject InstantiateTile(Vector2 pos, Layer layer)
+	private GameObject InstantiateTile(Vector2 pos, Transform layerTransform)
 	{
 
 		//Only creates tile if mouse is over scene view
@@ -927,7 +956,7 @@ public class LevelEditor : EditorWindow
 
 
 		metaTile.transform.rotation = Quaternion.Euler(0, 0, ModeToAngle(RotationMode));
-		metaTile.transform.SetParent(layer.transform);
+		metaTile.transform.SetParent(layerTransform);
 		metaTile.transform.localPosition = (Vector3)pos + metaTile.transform.InverseTransformVector(OffsetWeirdTiles());
 
 
@@ -1016,7 +1045,7 @@ public class LevelEditor : EditorWindow
         return StageBorder.Blocked.None;
     }
 
-	private void InstantiateBorder(GameObject borderPrefab, Vector2 pos, Layer layer)
+	private void InstantiateBorder(GameObject borderPrefab, Vector2 pos, Transform layerTransform)
     {
 
         //Only creates tile if mouse is over scene view
@@ -1026,13 +1055,13 @@ public class LevelEditor : EditorWindow
 
         foreach (var dir in directions)
         {
-            var prevTile = IsObjectAt(pos+dir, layer);
+            var prevTile = IsObjectAt(pos+dir, layerTransform);
             if (prevTile == null)
             {
                 GameObject metaTile = (GameObject)PrefabUtility.InstantiatePrefab(borderPrefab);
 
                 metaTile.transform.rotation = Quaternion.identity;
-                metaTile.transform.SetParent(layer.transform);
+                metaTile.transform.SetParent(layerTransform);
                 metaTile.transform.localPosition = pos + dir;
 
                 //gets renderer
@@ -1055,8 +1084,7 @@ public class LevelEditor : EditorWindow
             }
             if (prevTile != null && prevTile.GetComponent<StageBorder>())
             {
-                Debug.Log("");
-				var border = prevTile.GetComponent<StageBorder>();
+                var border = prevTile.GetComponent<StageBorder>();
                 var sr = prevTile.GetComponent<SpriteRenderer>();
                 Undo.RegisterCompleteObjectUndo(prevTile.transform, "UpdatedBorder");
 				Undo.RegisterCompleteObjectUndo(border, "UpdatedBorder");
@@ -1069,7 +1097,7 @@ public class LevelEditor : EditorWindow
     }
 
 	private Vector2 _prevAddTilePos = Vector2.positiveInfinity;
-	private void AddTile(Vector2 pos, Layer layer)
+	private void AddTile(Vector2 pos, Transform layerTransform)
 	{
 		//only adds tile if mouse is over sceneView
 		if (mouseOverWindow.ToString() != " (UnityEditor.SceneView)")
@@ -1081,36 +1109,36 @@ public class LevelEditor : EditorWindow
         if (_prevAddTilePos == pos) return;
 
         //sees if there's an object at that position
-		GameObject go = IsObjectAt(pos, layer);
+		GameObject go = IsObjectAt(pos, layerTransform);
 
 		//creates objest/ovewrites current one in that position
 
 		if (go == null)
 		{
 
-			Undo.RegisterFullObjectHierarchyUndo(layer.transform, "Created go");
-			var obj = InstantiateTile(pos, layer);
+			Undo.RegisterFullObjectHierarchyUndo(layerTransform, "Created go");
+			var obj = InstantiateTile(pos, layerTransform);
             if (obj)
             {
                 var option = obj.GetComponent<PrefabOption>();
                 if (option)
                 {
-                    InstantiateBorder(option.borderPrefab, pos, layer);
+                    InstantiateBorder(option.borderPrefab, pos, layerTransform);
                 }
 			}
         }
 		else if (Overwrite)
 		{
-            Undo.RegisterFullObjectHierarchyUndo(layer.transform, "Created go");
+            Undo.RegisterFullObjectHierarchyUndo(layerTransform, "Created go");
 
 			Undo.DestroyObjectImmediate(go);
 			DestroyImmediate(go);
 
-            var obj = InstantiateTile(pos, layer);
+            var obj = InstantiateTile(pos, layerTransform);
             var option = obj.GetComponent<PrefabOption>();
             if (option)
             {
-                InstantiateBorder(option.borderPrefab, pos, layer);
+                InstantiateBorder(option.borderPrefab, pos, layerTransform);
             }
         }
 
@@ -1118,7 +1146,7 @@ public class LevelEditor : EditorWindow
 
     }
 
-    private void FixBorder(GameObject borderPrefab, Vector2 pos, Layer layer)
+    private void FixBorder(GameObject borderPrefab, Vector2 pos, Transform layerTransform)
     {
         //Only creates tile if mouse is over scene view
         if (borderPrefab == null || mouseOverWindow.ToString() != " (UnityEditor.SceneView)")
@@ -1128,7 +1156,7 @@ public class LevelEditor : EditorWindow
         var hereBlocked = StageBorder.Blocked.None;
         foreach (var dir in directions)
         {
-            var prevTile = IsObjectAt(pos + dir, layer);
+            var prevTile = IsObjectAt(pos + dir, layerTransform);
             if (prevTile == null)
             {
                 continue;
@@ -1158,7 +1186,7 @@ public class LevelEditor : EditorWindow
             GameObject metaTile = (GameObject)PrefabUtility.InstantiatePrefab(borderPrefab);
 
             metaTile.transform.rotation = Quaternion.identity;
-            metaTile.transform.SetParent(layer.transform);
+            metaTile.transform.SetParent(layerTransform);
             metaTile.transform.localPosition = pos;
 
             //gets renderer
@@ -1182,15 +1210,21 @@ public class LevelEditor : EditorWindow
 	//Deletes object at a certain location
 	private void RemoveTile()
     {
+        var layerTransform = _currentLayer.transform;
+        if (CheckOnlyOnFloor(CurPrefab))
+        {
+            layerTransform = FloorLayer.transform;
+        }
+
         Vector2 pos = new Vector2(GizmoCursor.transform.position.x, GizmoCursor.transform.position.y);
-		GameObject goToDelete = IsObjectAt(pos, _currentLayer);
+		GameObject goToDelete = IsObjectAt(pos, layerTransform);
 		Debug.Log(goToDelete);
         if (goToDelete)
         {
             var option = goToDelete.GetComponent<PrefabOption>();
             if (option)
             {
-                FixBorder(option.borderPrefab, pos, _currentLayer);
+                FixBorder(option.borderPrefab, pos, layerTransform);
             }
 
             Undo.DestroyObjectImmediate(goToDelete);
@@ -1238,6 +1272,13 @@ public class LevelEditor : EditorWindow
 		var prop = obj.GetComponent<PrefabOption>();
 		return !prop || prop.flippable;
 	}
+
+    private static bool CheckOnlyOnFloor(GameObject obj)
+    {
+        if (obj == null) return false;
+        var prop = obj.GetComponent<PrefabOption>();
+        return !prop || prop.onlyOnFloor;
+    }
 
 	//Draws gui
 	void OnGUI()
@@ -1551,8 +1592,18 @@ public class LevelEditor : EditorWindow
 
 
 		//shows current layer
-		if (_currentLayer != null)
-			EditorGUILayout.LabelField("Current Layer", _currentLayer.name);
+        if (_currentLayer != null)
+        {
+            if (CheckOnlyOnFloor(CurPrefab))
+            {
+                EditorGUILayout.LabelField("Current Layer", "Floor (Special Layer)");
+			}
+            else
+            {
+                EditorGUILayout.LabelField("Current Layer", _currentLayer.name);
+			}
+        }
+			
 
 
 		//Shows the prefab
@@ -1816,7 +1867,9 @@ public class LevelEditor : EditorWindow
 		}
 
 		LayerList?.Sort((x, y) => x.transform.GetSiblingIndex() < y.transform.GetSiblingIndex() ? -1 : 1);
-	}
+
+        FloorLayer = FindObjectOfType<Floor>();
+    }
 
 	//Reorder layers in list according to their order in the hierarchy
 	void ReorderLayers()
