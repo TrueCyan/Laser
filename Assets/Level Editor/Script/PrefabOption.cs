@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Serialization;
 
 
 [ExecuteInEditMode]
@@ -14,7 +14,7 @@ public class PrefabOption : MonoBehaviour
     public bool flippable;
     public bool showInEditor = true;
     public GameObject borderPrefab;
-    public bool onlyOnFloor;
+    public bool onlyOnFloorLayer;
 
 
     // Update is called once per frame

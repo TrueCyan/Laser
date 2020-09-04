@@ -795,7 +795,9 @@ public class LevelEditor : EditorWindow
 			for (float x = downRight.x; x <= topLeft.x; x++)
             {
                 GameObject go = IsObjectAt(new Vector3(x, y, 0), layerTransform);
-
+                GameObject floor = IsObjectAt(new Vector3(x, y, 0), FloorLayer.transform);
+                if (floor == null) continue;
+                if (!floor.CompareTag("Floor")) continue;
 				//If there no object than create it
 				if (go == null)
 				{
@@ -1109,18 +1111,21 @@ public class LevelEditor : EditorWindow
         if (_prevAddTilePos == pos) return;
 
         //sees if there's an object at that position
-		GameObject go = IsObjectAt(pos, layerTransform);
+		GameObject obj = IsObjectAt(pos, layerTransform);
+        GameObject floor = IsObjectAt(pos, FloorLayer.transform);
+        if (floor == null) return;
+        if (!floor.CompareTag("Floor")) return;
 
 		//creates objest/ovewrites current one in that position
 
-		if (go == null)
+		if (obj == null)
 		{
 
 			Undo.RegisterFullObjectHierarchyUndo(layerTransform, "Created go");
-			var obj = InstantiateTile(pos, layerTransform);
-            if (obj)
+			var tile = InstantiateTile(pos, layerTransform);
+            if (tile)
             {
-                var option = obj.GetComponent<PrefabOption>();
+                var option = tile.GetComponent<PrefabOption>();
                 if (option)
                 {
                     InstantiateBorder(option.borderPrefab, pos, layerTransform);
@@ -1131,11 +1136,11 @@ public class LevelEditor : EditorWindow
 		{
             Undo.RegisterFullObjectHierarchyUndo(layerTransform, "Created go");
 
-			Undo.DestroyObjectImmediate(go);
-			DestroyImmediate(go);
+			Undo.DestroyObjectImmediate(obj);
+			DestroyImmediate(obj);
 
-            var obj = InstantiateTile(pos, layerTransform);
-            var option = obj.GetComponent<PrefabOption>();
+            var tile = InstantiateTile(pos, layerTransform);
+            var option = tile.GetComponent<PrefabOption>();
             if (option)
             {
                 InstantiateBorder(option.borderPrefab, pos, layerTransform);
@@ -1277,7 +1282,7 @@ public class LevelEditor : EditorWindow
     {
         if (obj == null) return false;
         var prop = obj.GetComponent<PrefabOption>();
-        return !prop || prop.onlyOnFloor;
+        return !prop || prop.onlyOnFloorLayer;
     }
 
 	//Draws gui

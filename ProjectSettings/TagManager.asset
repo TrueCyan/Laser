@@ -8,6 +8,7 @@ TagManager:
   - Mirror
   - Glass
   - Wood
+  - Floor
   layers:
   - Default
   - TransparentFX

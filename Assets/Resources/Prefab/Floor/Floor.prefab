@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 4895147851000073570}
   m_Layer: 8
   m_Name: Floor
-  m_TagString: Untagged
+  m_TagString: Floor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -101,7 +101,7 @@ MonoBehaviour:
   flippable: 0
   showInEditor: 1
   borderPrefab: {fileID: 6128515492563065367, guid: 41d0059c17fcf2c459b7457a1049465f, type: 3}
-  onlyOnFloor: 1
+  onlyOnFloorLayer: 1
 --- !u!114 &5457689315061560646
 MonoBehaviour:
   m_ObjectHideFlags: 0

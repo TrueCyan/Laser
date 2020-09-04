@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -3504595934203370117}
   m_Layer: 10
   m_Name: Border
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -121,7 +121,7 @@ MonoBehaviour:
   flippable: 0
   showInEditor: 0
   borderPrefab: {fileID: 0}
-  onlyOnFloor: 1
+  onlyOnFloorLayer: 1
 --- !u!61 &-3222828349288153571
 BoxCollider2D:
   m_ObjectHideFlags: 0
