@@ -3285,6 +3285,7 @@ MonoBehaviour:
   hitObj: {fileID: 0}
   end: {x: 0, y: 0}
   reflectionDir: {x: 0, y: 0}
+  normalDir: {x: 0, y: 0}
 --- !u!120 &408064618
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -5783,6 +5784,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movable: 1
+  laserInfo:
+    up: 0
+    down: 0
+    left: 0
+    right: 0
 --- !u!1001 &685151048
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6280,11 +6286,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5990288872278691241, guid: 28218d763aacada42b925f13d1650e73, type: 3}
       propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5990288872278691241, guid: 28218d763aacada42b925f13d1650e73, type: 3}
+      propertyPath: m_Color.r
       value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 5990288872278691242, guid: 28218d763aacada42b925f13d1650e73, type: 3}
       propertyPath: hasColor
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5990288872278691247, guid: 28218d763aacada42b925f13d1650e73, type: 3}
       propertyPath: m_Name
@@ -8803,6 +8813,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movable: 1
+  laserInfo:
+    up: 0
+    down: 0
+    left: 0
+    right: 0
 --- !u!4 &1119479002 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2536443967297334796, guid: 36741e85f1252e14e8eae9aeb859a7e7, type: 3}
@@ -11455,6 +11470,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movable: 1
+  laserInfo:
+    up: 0
+    down: 0
+    left: 0
+    right: 0
 --- !u!114 &1490558709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15016,6 +15036,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movable: 1
+  laserInfo:
+    up: 0
+    down: 0
+    left: 0
+    right: 0
 --- !u!114 &1931235846
 MonoBehaviour:
   m_ObjectHideFlags: 0

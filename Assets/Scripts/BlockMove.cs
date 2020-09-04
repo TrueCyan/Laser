@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class BlockMove : MonoBehaviour
@@ -14,6 +15,8 @@ public class BlockMove : MonoBehaviour
     private float _movingElapsed = 0; // 지금까지 움직인 시간
 
     private PlayerMove _playerMove;
+
+    public LaserInfo laserInfo = new LaserInfo();
 
     public delegate void MoveFinished();
     public event MoveFinished MoveFinishedEvent;

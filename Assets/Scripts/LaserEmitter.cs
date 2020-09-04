@@ -13,7 +13,7 @@ public class LaserEmitter : MonoBehaviour
         right
     }
 
-    public Laser.ColorCode color;
+    public LaserInfo.ColorCode color;
     public LaserDir direction;
     public Laser emitLaser;
     public bool activated = true;

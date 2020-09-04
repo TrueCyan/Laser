@@ -7,24 +7,18 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class Laser : MonoBehaviour
 {
-    [Flags]
-    public enum ColorCode
-    {
-        Black = 0,
-        Red = 1,
-        Green = 1 << 1,
-        Blue = 1 << 2
-    }
 
+    
     public Vector2 direction;
-    public ColorCode color;
+    public LaserInfo.ColorCode color;
     public Laser dependentLaser;
 
     [HideInInspector] public GameObject hitObj;
     [HideInInspector] public Vector2 end;
     [HideInInspector] public Vector2 reflectionDir;
+    [HideInInspector] public Vector2 normalDir;
 
-    
+
     private LineRenderer _light;
     private List<Laser> _subLasers = new List<Laser>();
 
@@ -38,10 +32,20 @@ public class Laser : MonoBehaviour
     private void Initialize()
     {
         _light = GetComponent<LineRenderer>();
-        if (color == ColorCode.Black)
+        if (color == LaserInfo.ColorCode.Black)
         {
             gameObject.SetActive(false);
         }
+    }
+
+    private LaserInfo.BlockFace ConvertNormal(Vector2 normal)
+    {
+        if (normal == Vector2.up) return LaserInfo.BlockFace.Up;
+        if (normal == Vector2.down) return LaserInfo.BlockFace.Down;
+        if (normal == Vector2.left) return LaserInfo.BlockFace.Left;
+        if (normal == Vector2.right) return LaserInfo.BlockFace.Right;
+        Debug.LogError(normal);
+        return LaserInfo.BlockFace.None;
     }
 
     // Update is called once per frame
@@ -64,20 +68,30 @@ public class Laser : MonoBehaviour
 
         _light.positionCount = 2;
         _light.SetPositions(new [] {pos, (Vector3)end});
-        var realColor = new Color(color.HasFlag(ColorCode.Red) ? 1 : 0,
-            color.HasFlag(ColorCode.Green) ? 1 : 0,
-            color.HasFlag(ColorCode.Blue) ? 1 : 0);
+        var realColor = new Color(color.HasFlag(LaserInfo.ColorCode.Red) ? 1 : 0,
+            color.HasFlag(LaserInfo.ColorCode.Green) ? 1 : 0,
+            color.HasFlag(LaserInfo.ColorCode.Blue) ? 1 : 0);
         _light.startColor = realColor;
         _light.endColor = realColor;
 
+        var prevNormalDir = normalDir;
+        normalDir = ray.normal;
 
         var prevReflectionDir = reflectionDir;
-        reflectionDir = Vector2.Reflect(direction, ray.normal);
+        reflectionDir = Vector2.Reflect(direction, normalDir);
 
-        var prevHitObj = hitObj;
+        var prevHitObj = hitObj?hitObj:null;
         hitObj = ray.transform.gameObject;
-        if (!prevHitObj.Equals(hitObj) || prevReflectionDir != reflectionDir)
+        if (prevHitObj == null || !prevHitObj.Equals(hitObj) || prevReflectionDir != reflectionDir)
         {
+            if (prevHitObj != null && ConvertNormal(prevNormalDir) != LaserInfo.BlockFace.None)
+            {
+                var prevBlock = prevHitObj.GetComponent<BlockMove>();
+                prevBlock.laserInfo.SetLaserInfoOnFace(ConvertNormal(prevNormalDir),LaserInfo.ColorCode.Black);
+            }
+            var block = hitObj.GetComponent<BlockMove>();
+            block.laserInfo.SetLaserInfoOnFace(ConvertNormal(normalDir), color);
+
             foreach (var laser in _subLasers)
             {
                 laser.Destroy();
@@ -92,7 +106,7 @@ public class Laser : MonoBehaviour
             else if (hitObj.CompareTag("Glass"))
             {
                 var reflectiveColor = hitObj.GetComponent<BlockColor>().hasColor;
-                if (reflectiveColor == ~ColorCode.Black) reflectiveColor = ColorCode.Black;
+                if (reflectiveColor == ~LaserInfo.ColorCode.Black) reflectiveColor = LaserInfo.ColorCode.Black;
                 var reflectiveLaser = CreateLaser(pos, Vector2.Reflect(direction, ray.normal), color & reflectiveColor, this);
                 var transmissiveLaser = CreateLaser(pos, direction, ~(color & reflectiveColor) & color, this);
                 reflectiveLaser.UpdateLaser();
@@ -110,6 +124,12 @@ public class Laser : MonoBehaviour
 
     public void Destroy()
     {
+        if (hitObj)
+        {
+            var block = hitObj.GetComponent<BlockMove>();
+            block.laserInfo.SetLaserInfoOnFace(ConvertNormal(normalDir), color);
+        }
+        
         foreach (var laser in _subLasers)
         {
             laser.Destroy();
@@ -135,7 +155,7 @@ public class Laser : MonoBehaviour
         }
         gameObject.SetActive(false);
     }
-    public Laser CreateLaser(Vector2 pos, Vector2 dir, ColorCode laserColor, Laser dependency)
+    public Laser CreateLaser(Vector2 pos, Vector2 dir, LaserInfo.ColorCode laserColor, Laser dependency)
     {
         var prefab = (GameObject)Resources.Load("SystemPrefab/Laser", typeof(GameObject));
         var obj = Instantiate(prefab);

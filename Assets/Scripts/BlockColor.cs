@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class BlockColor : MonoBehaviour
 {
-    public Laser.ColorCode hasColor;
+    public LaserInfo.ColorCode hasColor;
 
 #if UNITY_EDITOR
     private SpriteRenderer _sr;
@@ -20,9 +20,9 @@ public class BlockColor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        var realColor = new Color(hasColor.HasFlag(Laser.ColorCode.Red) ? 1 : 0.2f,
-            hasColor.HasFlag(Laser.ColorCode.Green) ? 1 : 0.2f,
-            hasColor.HasFlag(Laser.ColorCode.Blue) ? 1 : 0.2f);
+        var realColor = new Color(hasColor.HasFlag(LaserInfo.ColorCode.Red) ? 1 : 0.2f,
+            hasColor.HasFlag(LaserInfo.ColorCode.Green) ? 1 : 0.2f,
+            hasColor.HasFlag(LaserInfo.ColorCode.Blue) ? 1 : 0.2f);
         _sr.color = realColor;
     }
 #endif

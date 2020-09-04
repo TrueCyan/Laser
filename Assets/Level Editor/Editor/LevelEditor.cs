@@ -1392,9 +1392,9 @@ public class LevelEditor : EditorWindow
 
             var blockColor = GizmoTile.GetComponent<BlockColor>();
             blockColor.hasColor =
-                (RedOn ? Laser.ColorCode.Red : Laser.ColorCode.Black)
-                | (GreenOn ? Laser.ColorCode.Green : Laser.ColorCode.Black)
-                | (BlueOn ? Laser.ColorCode.Blue : Laser.ColorCode.Black);
+                (RedOn ? LaserInfo.ColorCode.Red : LaserInfo.ColorCode.Black)
+                | (GreenOn ? LaserInfo.ColorCode.Green : LaserInfo.ColorCode.Black)
+                | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
 
 			for (var i = 0; i < 4; i++)
 			{
@@ -1427,9 +1427,9 @@ public class LevelEditor : EditorWindow
             if (blockColor)
             {
                 blockColor.hasColor =
-                    (RedOn ? Laser.ColorCode.Red : Laser.ColorCode.Black)
-                    | (GreenOn ? Laser.ColorCode.Green : Laser.ColorCode.Black)
-                    | (BlueOn ? Laser.ColorCode.Blue : Laser.ColorCode.Black);
+                    (RedOn ? LaserInfo.ColorCode.Red : LaserInfo.ColorCode.Black)
+                    | (GreenOn ? LaserInfo.ColorCode.Green : LaserInfo.ColorCode.Black)
+                    | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
 			}
             
 		}
@@ -1443,9 +1443,9 @@ public class LevelEditor : EditorWindow
             if (blockColor)
             {
                 blockColor.hasColor =
-                    (RedOn ? Laser.ColorCode.Red : Laser.ColorCode.Black)
-                    | (GreenOn ? Laser.ColorCode.Green : Laser.ColorCode.Black)
-                    | (BlueOn ? Laser.ColorCode.Blue : Laser.ColorCode.Black);
+                    (RedOn ? LaserInfo.ColorCode.Red : LaserInfo.ColorCode.Black)
+                    | (GreenOn ? LaserInfo.ColorCode.Green : LaserInfo.ColorCode.Black)
+                    | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
             }
 		}
         if (BlueState == true)
@@ -1458,9 +1458,9 @@ public class LevelEditor : EditorWindow
             if (blockColor)
             {
                 blockColor.hasColor =
-                    (RedOn ? Laser.ColorCode.Red : Laser.ColorCode.Black)
-                    | (GreenOn ? Laser.ColorCode.Green : Laser.ColorCode.Black)
-                    | (BlueOn ? Laser.ColorCode.Blue : Laser.ColorCode.Black);
+                    (RedOn ? LaserInfo.ColorCode.Red : LaserInfo.ColorCode.Black)
+                    | (GreenOn ? LaserInfo.ColorCode.Green : LaserInfo.ColorCode.Black)
+                    | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
             }
 		}
 		if (SnappingState == true)
@@ -1683,9 +1683,9 @@ public class LevelEditor : EditorWindow
         if (blockColor)
         {
             blockColor.hasColor =
-                (RedOn ? Laser.ColorCode.Red : Laser.ColorCode.Black)
-                | (GreenOn ? Laser.ColorCode.Green : Laser.ColorCode.Black)
-                | (BlueOn ? Laser.ColorCode.Blue : Laser.ColorCode.Black);
+                (RedOn ? LaserInfo.ColorCode.Red : LaserInfo.ColorCode.Black)
+                | (GreenOn ? LaserInfo.ColorCode.Green : LaserInfo.ColorCode.Black)
+                | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
         }
 
 		//make it transparent
