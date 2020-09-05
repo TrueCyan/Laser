@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 
+
 public class LaserEmitter : MonoBehaviour
 {
     public enum LaserDir
@@ -18,6 +19,8 @@ public class LaserEmitter : MonoBehaviour
     public Laser emitLaser;
     public bool activated = true;
 
+    private LaserDir _prevDir;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,6 +28,11 @@ public class LaserEmitter : MonoBehaviour
         var attached = ray.transform.gameObject;
         transform.parent = attached.transform;
 
+        DirectionUpdate();
+    }
+
+    private void DirectionUpdate()
+    {
         var dir = transform.up;
 
         switch (direction)
@@ -39,11 +47,14 @@ public class LaserEmitter : MonoBehaviour
 
         emitLaser.direction = dir;
         emitLaser.color = color;
+
+        _prevDir = direction;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(direction != _prevDir) DirectionUpdate();
         if (BlockCheck(transform.position))
         {
             emitLaser.Destroy();

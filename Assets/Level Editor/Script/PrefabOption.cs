@@ -10,11 +10,14 @@ using UnityEngine.Serialization;
 [ExecuteInEditMode]
 public class PrefabOption : MonoBehaviour
 {
-    public bool rotatable;
-    public bool flippable;
+    //public bool rotatable;
+    //public bool flippable;
     public bool showInEditor = true;
+    public bool attachable;
+    
     public GameObject borderPrefab;
     public bool onlyOnFloorLayer;
+    
 
 
     // Update is called once per frame

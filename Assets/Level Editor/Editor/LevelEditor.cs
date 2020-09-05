@@ -2,9 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq.Expressions;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 
 public class LevelEditor : EditorWindow
@@ -24,20 +27,17 @@ public class LevelEditor : EditorWindow
 	private Vector2 _scrollPos;
 
 	//bool that lets create in the same layer, an object above the other or not
-	public bool Overwrite;
-	public static bool OverwriteState;
+	//public bool Overwrite;
+	//public static bool OverwriteState;
 
 	//lets you place an object not snapped to the grid
-	public bool Snapping;
-	public static bool SnappingState;
+	//public bool Snapping;
+	//public static bool SnappingState;
 
-	//lets you place an object not snapped to the grid
-	public bool Flipping;
-	public static bool FlippingState;
+	//public bool Flipping;
+	//public static bool FlippingState;
 
-    public bool selOnlyFloor;
-
-	//controls when there will be an area deletion
+    //controls when there will be an area deletion
 	public bool AreaDel;
 
 	//control when there will be an area insertion
@@ -82,6 +82,7 @@ public class LevelEditor : EditorWindow
 
 	//gizmos that appear on the scene to help build the map
 	public static GameObject GizmoCursor, GizmoTile;
+    public static Sprite FullCursor, QuarterCursor;
 
 	//mousePosition at all times
 	public Vector2 MousePos;
@@ -123,10 +124,11 @@ public class LevelEditor : EditorWindow
     public bool RedOn = true;
     public bool GreenOn = true;
     public bool BlueOn = true;
-    public static bool RedState = true;
-    public static bool GreenState = true;
-    public static bool BlueState = true;
+    public static bool RedState = false;
+    public static bool GreenState = false;
+    public static bool BlueState = false;
 
+	public LaserEmitter.LaserDir direction = LaserEmitter.LaserDir.front;
     
 
 	#endregion variable
@@ -138,7 +140,7 @@ public class LevelEditor : EditorWindow
 	static void Init()
 	{
 		// Get existing open window or if none, make a new one:
-		_window = (LevelEditor)EditorWindow.GetWindow(typeof(LevelEditor));
+		_window = (LevelEditor)GetWindow(typeof(LevelEditor));
 		_window.Show();
 
 		//sets minimum size
@@ -154,7 +156,10 @@ public class LevelEditor : EditorWindow
 
 		ShowLog("Enabled");
 
-		//sets alignment to middle center
+        FullCursor = Resources.Load<Sprite>("Sprite/Cursor");
+        QuarterCursor = Resources.Load<Sprite>("Sprite/QuarterCursor");
+
+        //sets alignment to middle center
 		_alignId = 4;
 		_align = Vector2.zero;
 
@@ -166,8 +171,8 @@ public class LevelEditor : EditorWindow
 
 		//sets rotation to zero , overwrite on, snapping on
 		RotationMode = 0;
-		Overwrite = true;
-		Snapping = true;
+		//Overwrite = true;
+		//Snapping = true;
 
 		//sets up the reorderable list
 
@@ -302,8 +307,7 @@ public class LevelEditor : EditorWindow
             }
 		}
         */
-		
-		
+        
 		//looks for the object on the current active layer
 		for (int i = 0; i < layerTransform.childCount; i++)
 		{
@@ -336,7 +340,7 @@ public class LevelEditor : EditorWindow
 			}
 		}
 		
-		return null;
+        return null;
 	}
 
 	//whenever window is closed
@@ -363,7 +367,7 @@ public class LevelEditor : EditorWindow
 	//check if we are not 
 	private void OnLostFocus()
 	{
-
+        PrevSelGridInt = SelGridInt;
 	}
 
 
@@ -534,8 +538,8 @@ public class LevelEditor : EditorWindow
 		if (MouseDown && e.shift == false && AreaIns == false && e.control == false)
 		{
             //prevents from creating several gameobjects if snapping is off
-			if (Snapping == false)
-				MouseDown = false;
+			//if (Snapping == false)
+			//	MouseDown = false;
             var layerTransform = _currentLayer.transform;
             if (CheckOnlyOnFloor(CurPrefab))
                 layerTransform = FloorLayer.transform;
@@ -612,7 +616,7 @@ public class LevelEditor : EditorWindow
 		Repaint();
 
 	}
-
+	/*
 	//Rotates GizmoTile -90degrees
 	[MenuItem("Level Editor/Rotate CW &r", false, 12)]
 	private static void RotateGizmo()
@@ -639,7 +643,8 @@ public class LevelEditor : EditorWindow
 		//GizmoTile.transform.rotation = Quaternion.Euler(0,0,rotation);
 
 	}
-
+	*/
+	/*
 	//toggles snapping
 	[MenuItem("Level Editor/Snap &s", false, 24)]
 	private static void ToggleSnapping()
@@ -671,7 +676,7 @@ public class LevelEditor : EditorWindow
 		OverwriteState = true;
 		Undo.RecordObject(Instance, "Overwrite");
 	}
-
+	*/
 	//Draws Rectangle Area
 	private void DrawAreaRectangle()
 	{
@@ -789,16 +794,20 @@ public class LevelEditor : EditorWindow
             layerTransform = FloorLayer.transform;
         }
 
+        var onFloor = layerTransform == FloorLayer.transform;
 		//goes through every unit on that area and creates objects
 		for (float y = downRight.y; y <= topLeft.y; y++)
 		{
 			for (float x = downRight.x; x <= topLeft.x; x++)
             {
                 GameObject go = IsObjectAt(new Vector3(x, y, 0), layerTransform);
-                GameObject floor = IsObjectAt(new Vector3(x, y, 0), FloorLayer.transform);
-                if (floor == null) continue;
-                if (!floor.CompareTag("Floor")) continue;
-				//If there no object than create it
+                if (!onFloor)
+                {
+                    GameObject floor = IsObjectAt(new Vector3(x, y, 0), FloorLayer.transform);
+                    if (floor == null) continue;
+                    if (!floor.CompareTag("Floor")) continue;
+				}
+                //If there no object than create it
 				if (go == null)
 				{
                     var obj = InstantiateTile(new Vector3(x, y, 0), layerTransform);
@@ -812,7 +821,7 @@ public class LevelEditor : EditorWindow
 					}
 
                 }//in this case there is go in there
-				else if (Overwrite)
+				else// if (Overwrite)
 				{
 					Undo.DestroyObjectImmediate(go);
 					DestroyImmediate(go);
@@ -903,30 +912,68 @@ public class LevelEditor : EditorWindow
 
 
 			//check if snaping is active and position cursor
-			if (Snapping)
+			//if (Snapping)
+			//{
+			Vector2 gizmoPos = Vector2.zero;
+			if (MousePos.x - Mathf.Floor(MousePos.x) < 0.5f)
 			{
-				Vector2 gizmoPos = Vector2.zero;
-				if (MousePos.x - Mathf.Floor(MousePos.x) < 0.5f)
-				{
-					gizmoPos.x = Mathf.Floor(MousePos.x) + 0.5f;
-				}
-				else if (Mathf.Ceil(MousePos.x) - MousePos.x < 0.5f)
-				{
-					gizmoPos.x = Mathf.Ceil(MousePos.x) - 0.5f;
-				}
-				if (MousePos.y - Mathf.Floor(MousePos.y) < 0.5f)
-				{
-					gizmoPos.y = Mathf.Floor(MousePos.y) + 0.5f;
-				}
-				else if (Mathf.Ceil(MousePos.y) - MousePos.y < 0.5f)
-				{
-					gizmoPos.y = Mathf.Ceil(MousePos.y) - 0.5f;
-				}
-
-				//sets gizmo cursor and tile positions
-				GizmoCursor.transform.position = gizmoPos;
-				GizmoTile.transform.position = gizmoPos + (Vector2)GizmoTile.transform.InverseTransformVector(OffsetWeirdTiles());
+				gizmoPos.x = Mathf.Floor(MousePos.x) + 0.5f;
 			}
+			else if (Mathf.Ceil(MousePos.x) - MousePos.x < 0.5f)
+			{
+				gizmoPos.x = Mathf.Ceil(MousePos.x) - 0.5f;
+			}
+			if (MousePos.y - Mathf.Floor(MousePos.y) < 0.5f)
+			{
+				gizmoPos.y = Mathf.Floor(MousePos.y) + 0.5f;
+			}
+			else if (Mathf.Ceil(MousePos.y) - MousePos.y < 0.5f)
+			{
+				gizmoPos.y = Mathf.Ceil(MousePos.y) - 0.5f;
+			}
+
+
+            Vector2 delta = MousePos - gizmoPos;
+            if (CheckAttachable(CurPrefab))
+            {
+                if (delta.y > delta.x)
+                {
+                    if (delta.y > -delta.x)
+                    {
+                        RotationMode = 2;
+					}
+                    else
+                    {
+                        RotationMode = 3;
+					}
+				}
+                else
+                {
+                    if (delta.y > -delta.x)
+                    {
+                        RotationMode = 1;
+					}
+                    else
+                    {
+                        RotationMode = 0;
+                        
+					}
+				}
+                GizmoCursor.transform.rotation = Quaternion.Euler(0, 0, ModeToAngle(RotationMode));
+				GizmoTile.transform.rotation = Quaternion.Euler(0, 0, ModeToAngle(RotationMode));
+			}
+            else
+            {
+                RotationMode = 0;
+                GizmoCursor.transform.rotation = Quaternion.Euler(0, 0, ModeToAngle(RotationMode));
+                GizmoTile.transform.rotation = Quaternion.Euler(0, 0, ModeToAngle(RotationMode));
+			}
+
+			//sets gizmo cursor and tile positions
+			GizmoCursor.transform.position = gizmoPos;
+			GizmoTile.transform.position = gizmoPos + (Vector2)GizmoTile.transform.InverseTransformVector(OffsetWeirdTiles());
+			//}
+			/*
 			else
 			{
 
@@ -935,7 +982,7 @@ public class LevelEditor : EditorWindow
 				GizmoTile.transform.position = MousePos;
 
 			}
-
+			*/
 			//Scale the scale correctly
 			if (CurPrefab != null) GizmoTile.transform.localScale = CurPrefab.transform.localScale;
 		}
@@ -989,7 +1036,13 @@ public class LevelEditor : EditorWindow
             blockColor.hasColor = gizmoColor.hasColor;
         }
 
-        //var option = metaTile.GetComponent<PrefabOption>();
+        var laserEmitter = metaTile.GetComponent<LaserEmitter>();
+        if (laserEmitter)
+        {
+            laserEmitter.direction = direction;
+        }
+
+		//var option = metaTile.GetComponent<PrefabOption>();
 		//option.OnCreation();
 
 		Undo.RegisterCreatedObjectUndo(metaTile, "CreatedTile");
@@ -1049,7 +1102,6 @@ public class LevelEditor : EditorWindow
 
 	private void InstantiateBorder(GameObject borderPrefab, Vector2 pos, Transform layerTransform)
     {
-
         //Only creates tile if mouse is over scene view
         if (borderPrefab == null || mouseOverWindow.ToString() != " (UnityEditor.SceneView)")
             return;
@@ -1058,33 +1110,28 @@ public class LevelEditor : EditorWindow
         foreach (var dir in directions)
         {
             var prevTile = IsObjectAt(pos+dir, layerTransform);
-            if (prevTile == null)
+			if (prevTile == null)
             {
                 GameObject metaTile = (GameObject)PrefabUtility.InstantiatePrefab(borderPrefab);
-
-                metaTile.transform.rotation = Quaternion.identity;
+				metaTile.transform.rotation = Quaternion.identity;
                 metaTile.transform.SetParent(layerTransform);
                 metaTile.transform.localPosition = pos + dir;
-
-                //gets renderer
-                SpriteRenderer sr = metaTile.GetComponent<SpriteRenderer>();
-
-                //sets order in layer
-                if (sr != null)
+				//gets renderer
+				SpriteRenderer sr = metaTile.GetComponent<SpriteRenderer>();
+				//sets order in layer
+				if (sr != null)
                 {
                     sr.sortingOrder = LayerList.Count - LayerList.IndexOf(_currentLayer);
 
                     if (_gizmoTileSR != null) sr.flipY = _gizmoTileSR.flipY;
                 }
-
                 var border = metaTile.GetComponent<StageBorder>();
                 border.blockedFaces = ConvertDir(dir);
 				border.UpdateSprite();
-                Undo.RegisterCreatedObjectUndo(metaTile, "CreatedTile");
-
-                continue;
+				Undo.RegisterCreatedObjectUndo(metaTile, "CreatedTile");
+				continue;
             }
-            if (prevTile != null && prevTile.GetComponent<StageBorder>())
+			if (prevTile != null && prevTile.GetComponent<StageBorder>())
             {
                 var border = prevTile.GetComponent<StageBorder>();
                 var sr = prevTile.GetComponent<SpriteRenderer>();
@@ -1096,12 +1143,12 @@ public class LevelEditor : EditorWindow
 
 			}
         }
-    }
+	}
 
 	private Vector2 _prevAddTilePos = Vector2.positiveInfinity;
 	private void AddTile(Vector2 pos, Transform layerTransform)
 	{
-		//only adds tile if mouse is over sceneView
+        //only adds tile if mouse is over sceneView
 		if (mouseOverWindow.ToString() != " (UnityEditor.SceneView)")
 		{
 			MouseDown = false;
@@ -1112,9 +1159,13 @@ public class LevelEditor : EditorWindow
 
         //sees if there's an object at that position
 		GameObject obj = IsObjectAt(pos, layerTransform);
-        GameObject floor = IsObjectAt(pos, FloorLayer.transform);
-        if (floor == null) return;
-        if (!floor.CompareTag("Floor")) return;
+        if (layerTransform != FloorLayer.transform)
+        {
+            GameObject floor = IsObjectAt(pos, FloorLayer.transform);
+            if (floor == null) return;
+            if (!floor.CompareTag("Floor")) return;
+		}
+        
 
 		//creates objest/ovewrites current one in that position
 
@@ -1131,8 +1182,8 @@ public class LevelEditor : EditorWindow
                     InstantiateBorder(option.borderPrefab, pos, layerTransform);
                 }
 			}
-        }
-		else if (Overwrite)
+		}
+		else// if (Overwrite)
 		{
             Undo.RegisterFullObjectHierarchyUndo(layerTransform, "Created go");
 
@@ -1148,7 +1199,6 @@ public class LevelEditor : EditorWindow
         }
 
         _prevAddTilePos = pos;
-
     }
 
     private void FixBorder(GameObject borderPrefab, Vector2 pos, Transform layerTransform)
@@ -1221,7 +1271,7 @@ public class LevelEditor : EditorWindow
             layerTransform = FloorLayer.transform;
         }
 
-        Vector2 pos = new Vector2(GizmoCursor.transform.position.x, GizmoCursor.transform.position.y);
+        Vector2 pos = GizmoCursor.transform.position;
 		GameObject goToDelete = IsObjectAt(pos, layerTransform);
 		Debug.Log(goToDelete);
         if (goToDelete)
@@ -1262,10 +1312,23 @@ public class LevelEditor : EditorWindow
 
     private static bool CheckHasColor(GameObject obj)
     {
-        var prop = obj.GetComponent<BlockColor>();
+		if (obj == null) return false;
+		var prop = obj.GetComponent<BlockColor>();
         return prop;
 	}
-
+    private static bool CheckAttachable(GameObject obj)
+    {
+        if (obj == null) return false;
+		var prop = obj.GetComponent<PrefabOption>();
+        return !prop || prop.attachable;
+    }
+    private static bool CheckHasDirection(GameObject obj)
+    {
+        if (obj == null) return false;
+        var prop = obj.GetComponent<LaserEmitter>();
+        return prop;
+    }
+	/*
 	private static bool CheckRotatable(GameObject obj)
 	{
 		var prop = obj.GetComponent<PrefabOption>();
@@ -1277,12 +1340,12 @@ public class LevelEditor : EditorWindow
 		var prop = obj.GetComponent<PrefabOption>();
 		return !prop || prop.flippable;
 	}
-
-    private static bool CheckOnlyOnFloor(GameObject obj)
+	*/
+	private static bool CheckOnlyOnFloor(GameObject obj)
     {
         if (obj == null) return false;
         var prop = obj.GetComponent<PrefabOption>();
-        return !prop || prop.onlyOnFloorLayer;
+        return prop && prop.onlyOnFloorLayer;
     }
 
 	//Draws gui
@@ -1359,14 +1422,14 @@ public class LevelEditor : EditorWindow
 								SelGridInt = aSelGridInt + startIndex;
 								if (!_mapToolActive)
 								{
-									PrevSelGridInt = SelGridInt;
+                                    PrevSelGridInt = SelGridInt;
 									_mapToolActive = true;
 									ActivateMapTool();
 								}
 							}
 							else
 							{
-								_mapToolActive = false;
+                                _mapToolActive = false;
 								DeactivateMapTool();
 							}
 							ChangeGizmoTile();
@@ -1413,6 +1476,34 @@ public class LevelEditor : EditorWindow
             }
         }
 
+        bool[] dirMode = { false, false, false };
+        switch (direction)
+        {
+            case LaserEmitter.LaserDir.left:
+                dirMode[0] = true;
+				break;
+            case LaserEmitter.LaserDir.front:
+                dirMode[1] = true;
+				break;
+            case LaserEmitter.LaserDir.right:
+                dirMode[2] = true;
+				break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            EditorGUILayout.PrefixLabel(new GUIContent("Direction", "Direction of Laser"));
+            using (new EditorGUI.DisabledGroupScope(!CurPrefab || !CheckHasDirection(CurPrefab)))
+            {
+                dirMode[0] = GUILayout.Toggle(dirMode[0], "Left", EditorStyles.miniButtonMid);
+                dirMode[1] = GUILayout.Toggle(dirMode[1], "Front", EditorStyles.miniButtonMid);
+                dirMode[2] = GUILayout.Toggle(dirMode[2], "Right", EditorStyles.miniButtonRight);
+            }
+        }
+
+		/*
         bool[] rMode = { false, false, false, false };
 		rMode[RotationMode] = true;
 		using (new EditorGUILayout.HorizontalScope())
@@ -1426,15 +1517,16 @@ public class LevelEditor : EditorWindow
 				rMode[3] = GUILayout.Toggle(rMode[3], "270", EditorStyles.miniButtonRight);
 			}
 		}
+		*/
 		//controls flipping
-		var aFlipping = false;
-		using (new EditorGUI.DisabledGroupScope(!CurPrefab || !CheckFlippable(CurPrefab)))
-			aFlipping = EditorGUILayout.Toggle(new GUIContent("Flipping", "Should tiles flipped"), Flipping);
+		//var aFlipping = false;
+		//using (new EditorGUI.DisabledGroupScope(!CurPrefab || !CheckFlippable(CurPrefab)))
+		//	aFlipping = EditorGUILayout.Toggle(new GUIContent("Flipping", "Should tiles flipped"), Flipping);
 		//controls overwrite
-		var aOverwrite = EditorGUILayout.Toggle(new GUIContent("Overwrite", "Do you want to overwrite tile in the same layer and position"), Overwrite);
+		//var aOverwrite = EditorGUILayout.Toggle(new GUIContent("Overwrite", "Do you want to overwrite tile in the same layer and position"), Overwrite);
 		//controls snapping
-		var aSnapping = EditorGUILayout.Toggle(new GUIContent("Snapping", "Should tiles snap to the grid"), Snapping);
-		
+		//var aSnapping = EditorGUILayout.Toggle(new GUIContent("Snapping", "Should tiles snap to the grid"), Snapping);
+
 		if (EditorGUI.EndChangeCheck())
 		{
 			Undo.RegisterCompleteObjectUndo(this, "GUI changed");
@@ -1444,26 +1536,65 @@ public class LevelEditor : EditorWindow
             BlueOn = colorMode[2];
 
             var blockColor = GizmoTile.GetComponent<BlockColor>();
-            blockColor.hasColor =
-                (RedOn ? LaserInfo.ColorCode.Red : LaserInfo.ColorCode.Black)
-                | (GreenOn ? LaserInfo.ColorCode.Green : LaserInfo.ColorCode.Black)
-                | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
+            if (blockColor)
+            {
+                blockColor.hasColor =
+                    (RedOn ? LaserInfo.ColorCode.Red : LaserInfo.ColorCode.Black)
+                    | (GreenOn ? LaserInfo.ColorCode.Green : LaserInfo.ColorCode.Black)
+                    | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
+			}
+            
+			for (var i = 0; i < 3; i++)
+            {
+                int dirNum;
+                switch (direction)
+                {
+                    case LaserEmitter.LaserDir.left:
+                        dirNum = 0;
+                        break;
+                    case LaserEmitter.LaserDir.front:
+                        dirNum = 1;
+                        break;
+                    case LaserEmitter.LaserDir.right:
+                        dirNum = 2;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+				if (i == dirNum || !dirMode[i]) continue;
+                switch (i)
+                {
+                    case 0:
+                        direction = LaserEmitter.LaserDir.left;
+                        break;
+                    case 1:
+						direction = LaserEmitter.LaserDir.front;
+						break;
+                    case 2:
+						direction = LaserEmitter.LaserDir.right;
+						break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                break;
+            }
 
+			/*
 			for (var i = 0; i < 4; i++)
 			{
 				if (i == RotationMode || !rMode[i]) continue;
 				RotationMode = i;
 				break;
 			}
-
+			*/
 			// Code to execute if GUI.changed
-			Snapping = aSnapping;
-			Overwrite = aOverwrite;
-			Flipping = aFlipping;
+			//Snapping = aSnapping;
+			//Overwrite = aOverwrite;
+			//Flipping = aFlipping;
 
-			if (_gizmoTileSR != null)
-				_gizmoTileSR.flipY = Flipping;
-			
+			//if (_gizmoTileSR != null)
+			//	_gizmoTileSR.flipY = Flipping;
+
 
 			GizmoTile.transform.rotation = Quaternion.Euler(0, 0, ModeToAngle(RotationMode));
 
@@ -1484,12 +1615,12 @@ public class LevelEditor : EditorWindow
                     | (GreenOn ? LaserInfo.ColorCode.Green : LaserInfo.ColorCode.Black)
                     | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
 			}
-            
+            ChangeGizmoTile();
 		}
         if (GreenState == true)
         {
 
-            GreenOn = !RedOn;
+            GreenOn = !GreenOn;
             GreenState = false;
 
             var blockColor = GizmoTile.GetComponent<BlockColor>();
@@ -1500,11 +1631,12 @@ public class LevelEditor : EditorWindow
                     | (GreenOn ? LaserInfo.ColorCode.Green : LaserInfo.ColorCode.Black)
                     | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
             }
+            ChangeGizmoTile();
 		}
         if (BlueState == true)
         {
 
-            BlueOn = !RedOn;
+            BlueOn = !BlueOn;
             BlueState = false;
 
             var blockColor = GizmoTile.GetComponent<BlockColor>();
@@ -1515,7 +1647,9 @@ public class LevelEditor : EditorWindow
                     | (GreenOn ? LaserInfo.ColorCode.Green : LaserInfo.ColorCode.Black)
                     | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
             }
+            ChangeGizmoTile();
 		}
+		/*
 		if (SnappingState == true)
 		{
 
@@ -1538,6 +1672,7 @@ public class LevelEditor : EditorWindow
 				_gizmoTileSR.flipY = Flipping;
 
 		}
+		*/
 		if (RotationState)
 		{
 			RotationMode = RotationModeStatic;
@@ -1715,7 +1850,7 @@ public class LevelEditor : EditorWindow
 	//changes gizmo tile sprite
 	private void ChangeGizmoTile()
 	{
-		if (GizmoTile != null)
+        if (GizmoTile != null)
 		{
 			Undo.DestroyObjectImmediate(GizmoTile);
 		}
@@ -1731,12 +1866,13 @@ public class LevelEditor : EditorWindow
 			GizmoTile = new GameObject();
 			Undo.RegisterCreatedObjectUndo(GizmoTile, "CreatedTile");
 		}
+		/*
 		if (_allPrefabs != null)
 		{
 			RotationModeStatic = (Mathf.FloorToInt(_allPrefabs[SelGridInt].transform.rotation.eulerAngles.z / 90)) % 4;
 			RotationState = true;
 		}
-
+		*/
 		GizmoTile.name = "GizmoTile";
 		GizmoTile.hideFlags = HideFlags.HideInHierarchy;
 		if (_gizmoTileSR == null)
@@ -1751,13 +1887,59 @@ public class LevelEditor : EditorWindow
                 | (BlueOn ? LaserInfo.ColorCode.Blue : LaserInfo.ColorCode.Black);
         }
 
+        var laserEmitter = GizmoTile.GetComponent<LaserEmitter>();
+        if (laserEmitter)
+        {
+            laserEmitter.direction = direction;
+        }
+
+        var option = GizmoTile.GetComponent<PrefabOption>();
+        if (option)
+        {
+            if (GizmoCursor)
+            {
+                var cursor = GizmoCursor.GetComponent<SpriteRenderer>();
+                if (option.attachable)
+                {
+                    cursor.sprite = QuarterCursor;
+                }
+                else
+                {
+                    cursor.sprite = FullCursor;
+                }
+			}
+        }
+        
 		//make it transparent
 		MakeGhost(GizmoTile);
 	}
 
+	#region RGB selection shortcuts
+
+	[MenuItem("Level Editor/Toggle Red _F1")]
+    private static void ToggleRed()
+    {
+        RedState = true;
+    }
+
+    [MenuItem("Level Editor/Toggle Green _F2")]
+    private static void ToggleGreen()
+    {
+        GreenState = true;
+    }
+
+    [MenuItem("Level Editor/Toggle Blue _F3")]
+    private static void ToggleBlue()
+    {
+        BlueState = true;
+    }
+
+	#endregion
+
+
 	#region prefab selection shortcuts
 	//Select object by pressing the F keys
-
+	/*
 	[MenuItem("Level Editor/Select GameObject 1 _F1")]
 	private static void Sel1()
 	{
@@ -1802,8 +1984,8 @@ public class LevelEditor : EditorWindow
 		SelGridIntStatic = 4;
 		SelGridIntState = true;
 	}
-
-    #endregion
+	*/
+	#endregion
 
 	#region Layer functions
 

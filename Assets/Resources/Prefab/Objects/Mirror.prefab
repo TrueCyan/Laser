@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5990288872278691246}
   - component: {fileID: 5990288872278691243}
   - component: {fileID: 5990288872278691242}
+  - component: {fileID: -8387965332994025344}
   m_Layer: 10
   m_Name: Mirror
   m_TagString: Mirror
@@ -124,6 +125,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movable: 1
+  laserInfo:
+    up: 0
+    down: 0
+    left: 0
+    right: 0
 --- !u!114 &5990288872278691242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,3 +143,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hasColor: -1
+--- !u!114 &-8387965332994025344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5990288872278691247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b6579acc3fd0e34d8e74dcb5ec3ef62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showInEditor: 1
+  attachable: 0
+  borderPrefab: {fileID: 0}
+  onlyOnFloorLayer: 0
