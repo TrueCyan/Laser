@@ -24,7 +24,7 @@ public class LaserEmitter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var ray = Physics2D.Raycast(transform.position, Vector2.left);
+        var ray = Physics2D.Raycast(transform.position, -transform.up, 100, LayerMask.GetMask("Object"));
         var attached = ray.transform.gameObject;
         transform.parent = attached.transform;
 
