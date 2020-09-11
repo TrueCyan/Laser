@@ -13,10 +13,10 @@ public class Laser : MonoBehaviour
     public LaserInfo.ColorCode color;
     public Laser dependentLaser;
 
-    [HideInInspector] public GameObject hitObj;
-    [HideInInspector] public Vector2 end;
-    [HideInInspector] public Vector2 reflectionDir;
-    [HideInInspector] public Vector2 normalDir;
+    public GameObject hitObj;
+    public Vector2 end;
+    public Vector2 reflectionDir;
+    public Vector2 normalDir;
 
 
     private LineRenderer _light;
@@ -82,15 +82,16 @@ public class Laser : MonoBehaviour
 
         var prevHitObj = hitObj?hitObj:null;
         hitObj = ray.transform.gameObject;
+        //이전에 어떤 오브젝트와도 충돌하지 않은 경우 or 이전과 다른 오브젝트와 충돌한 경우 or 법선 방향이 달라진 경우
         if (prevHitObj == null || !prevHitObj.Equals(hitObj) || prevReflectionDir != reflectionDir)
         {
             if (prevHitObj != null && ConvertNormal(prevNormalDir) != LaserInfo.BlockFace.None)
             {
                 var prevBlock = prevHitObj.GetComponent<BlockMove>();
-                prevBlock.laserInfo.SetLaserInfoOnFace(ConvertNormal(prevNormalDir),LaserInfo.ColorCode.Black);
+                prevBlock.laserInfo.RemoveLaserInfoOnFace(ConvertNormal(prevNormalDir),color);
             }
             var block = hitObj.GetComponent<BlockMove>();
-            block.laserInfo.SetLaserInfoOnFace(ConvertNormal(normalDir), color);
+            block.laserInfo.AddLaserInfoOnFace(ConvertNormal(normalDir), color);
 
             foreach (var laser in _subLasers)
             {
@@ -105,11 +106,8 @@ public class Laser : MonoBehaviour
             }
             else if (hitObj.CompareTag("Glass"))
             {
-                var reflectiveColor = hitObj.GetComponent<BlockColor>().hasColor;
-                if (reflectiveColor == ~LaserInfo.ColorCode.Black) reflectiveColor = LaserInfo.ColorCode.Black;
-                var reflectiveLaser = CreateLaser(pos, Vector2.Reflect(direction, ray.normal), color & reflectiveColor, this);
-                var transmissiveLaser = CreateLaser(pos, direction, ~(color & reflectiveColor) & color, this);
-                reflectiveLaser.UpdateLaser();
+                var transmissiveColor = hitObj.GetComponent<BlockColor>().hasColor;
+                var transmissiveLaser = CreateLaser(pos, direction, color & transmissiveColor, this);
                 transmissiveLaser.UpdateLaser();
             }
         }
@@ -127,7 +125,7 @@ public class Laser : MonoBehaviour
         if (hitObj)
         {
             var block = hitObj.GetComponent<BlockMove>();
-            block.laserInfo.SetLaserInfoOnFace(ConvertNormal(normalDir), color);
+            block.laserInfo.RemoveLaserInfoOnFace(ConvertNormal(normalDir), color);
         }
         
         foreach (var laser in _subLasers)

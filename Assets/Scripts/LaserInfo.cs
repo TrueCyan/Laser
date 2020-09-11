@@ -78,4 +78,42 @@ public class LaserInfo
         }
     }
 
+    public void AddLaserInfoOnFace(BlockFace face, ColorCode color)
+    {
+        if (face == BlockFace.Up)
+        {
+            up |= color;
+        }
+        if (face == BlockFace.Down)
+        {
+            down |= color;
+        }
+        if (face == BlockFace.Left)
+        {
+            left |= color;
+        }
+        if (face == BlockFace.Right)
+        {
+            right |= color;
+        }
+    }
+    public void RemoveLaserInfoOnFace(BlockFace face, ColorCode color)
+    {
+        if (face == BlockFace.Up)
+        {
+            up &= ~color;
+        }
+        if (face == BlockFace.Down)
+        {
+            down &= ~color;
+        }
+        if (face == BlockFace.Left)
+        {
+            left &= ~color;
+        }
+        if (face == BlockFace.Right)
+        {
+            right &= ~color;
+        }
+    }
 }
